@@ -15,9 +15,9 @@ sazonalidadeC1 =  np.array([10, 10, 10, 10, 10 ,10, 10, 10, 10, 10, 10, 10])
 sazonalidadeC2 =  np.array([30, 30, 30, 30, 30 ,30, 15, 10, 9, 10, 8, 8])
 
 #garantia fisica do parque, que representa a media anual da sazonalizacao total
-gfParque = 40
+gfParque = 50
 #sazonalidade a cada mês que é o X da nossa questao, esse array não pode ter a media maior que 40
-sazonalidadeMes = np.array([40.00, 40.00 ,40.00, 40.00 ,40.00, 40.00 ,40.00, 40.00, 40.00 ,40.00 ,40.00, 40.00]) # MWmed
+sazonalidadeMes = np.array([50.00, 50.00 ,50.00, 50.00 ,50.00, 50.00 ,50.00, 50.00, 50.00 ,50.00 ,50.00,50.00]) # MWmed
 
 #DADOS DOS DOIS CONTRATOS
 #contrato1
@@ -30,53 +30,56 @@ precoC2 = 190
 flexibilidadeC2 = 0
 receitaC2 = 0
 
-#CALCULO DO PRIMEIRO CONTRATO
+#Controle que realiza a verificacao se a garantia fisica do mes e maior que a soma da energia entregue nos contratos
+#se for maior: codigo continua, se for menor: codigo abortado
+controle = True
+
 for i in range(12):
-    #energia contratada
-    econt = sazonalidadeC1[i] * horasPmes[i]
-    # calculo do percentual da energia gerada que pega o proporcional do todo que
-    #e entregue nos dois contratos e multiplica pela energia gerada. A energia gerada sera
-    #multiplicada pela quant de horas do mes para que ele fique em KW/h 
-    eger = (sazonalidadeC1[i]/(sazonalidadeC1[i] + sazonalidadeC2[i]))*(energiaGerada1[i] * horasPmes[i])
+    if(sazonalidadeMes[i] < (sazonalidadeC1[i] + sazonalidadeC2[i])):
+        controle = False
+        print(f"A sonalidade do mes {i+1} eh menor do que a soma da energia entregue nos contratos")
 
-    #acima foram definidas as variaveis agora vamos ao calculo
-    #se e energia gerada for menor do que o que deve ser entregue nos dois contratos, o excedente será comprado no valor de 110
-    if((sazonalidadeC1[i] + sazonalidadeC2[i]) > energiaGerada1[i]):
-        receitaC1 = (precoC1 * econt) + ((eger - econt)*110)
-        receitaC1 += receitaC1
-        print(receitaC1)
-    
-    #por outro lado, se for maior ou igual, o valor do calculo será o do pld
-    else:
-        receitaC1 = (precoC1 * econt) + ((eger - econt)*pld[i])
-        receitaC1 += receitaC1
-        print(receitaC1)
+#variavel para armazenar a receita a cada mes
+receitaMes = 0
+        
+if(controle):
+    #CALCULO DO PRIMEIRO CONTRATO
+    for i in range(12):
+        #energia contratada
+        econt = sazonalidadeC1[i] * horasPmes[i]
+        # calculo do percentual da energia gerada que pega o proporcional do todo que
+        #e entregue nos dois contratos e multiplica pela energia gerada. A energia gerada sera
+        #multiplicada pela quant de horas do mes para que ele fique em KW/h 
+        eger = (sazonalidadeC1[i]/(sazonalidadeC1[i] + sazonalidadeC2[i]))*(energiaGerada1[i] * horasPmes[i])
 
-#print(receitaC1)
-econt = 0
-eger = 0
+        #acima foram definidas as variaveis agora vamos ao calculo
+        receitaMes = (precoC1 * econt) + ((eger - econt)*pld[i])
+        numeroFormatado = "{:,.3f}".format(receitaMes)
+        receitaC1 += receitaMes
+        print(f"A receita do mes {i+1} eh {numeroFormatado}")
 
+    numeroFormatado2 = "{:,.3f}".format(receitaC1)
+    print(f"Receita total para o contrato 1: {numeroFormatado2}")
+    econt = 0
+    eger = 0
+    receitaMes = 0
 
-#CALCULO DO SEGUNDO CONTRATO
-for i in range(11):
-    #energia contratada
-    econt = sazonalidadeC2[i] * horasPmes[i]
-    # calculo do percentual da energia gerada que pega o proporcional do todo que
-    #e entregue nos dois contratos e multiplica pela energia gerada. A energia gerada sera
-    #multiplicada pela quant de horas do mes para que ele fique em KW/h 
-    eger = (sazonalidadeC2[i]/(sazonalidadeC1[i] + sazonalidadeC2[i]))*(energiaGerada1[i] * horasPmes[i])
+    print("\n")
 
-    #acima foram definidas as variaveis agora vamos ao calculo
-    #se e energia gerada for menor do que o que deve ser entregue nos dois contratos, o excedente será comprado no valor de 110
-    if((sazonalidadeC1[i] + sazonalidadeC2[i]) > energiaGerada1[i]):
-        receitaC2 = (precoC2 * econt) + ((eger - econt)*110)
-        receitaC2 += receitaC2
-        #print(receitaC1)
-    
-    #por outro lado, se for maior ou igual, o valor do calculo será o do pld
-    else:
-        receitaC2 = (precoC2 * econt) + ((eger - econt)*pld[i])
-        receitaC2 += receitaC2
-        #print(receitaC1)
+    #CALCULO DO SEGUNDO CONTRATO
+    for i in range(12):
+        #energia contratada
+        econt = sazonalidadeC2[i] * horasPmes[i]
+        # calculo do percentual da energia gerada que pega o proporcional do todo que
+        #e entregue nos dois contratos e multiplica pela energia gerada. A energia gerada sera
+        #multiplicada pela quant de horas do mes para que ele fique em KW/h 
+        eger = (sazonalidadeC2[i]/(sazonalidadeC1[i] + sazonalidadeC2[i]))*(energiaGerada1[i] * horasPmes[i])
 
-print(receitaC2)
+        #acima foram definidas as variaveis agora vamos ao calculo
+        receitaMes = (precoC2 * econt) + ((eger - econt)*pld[i])
+        receitaC2 += receitaMes
+        numeroFormatado3 = "{:,.3f}".format(receitaMes)
+        print(f"A receita do mes {i+1} eh {numeroFormatado3}")
+
+    numeroFormatado4 = "{:,.3f}".format(receitaC2)
+    print(f"Receita total para o contrato 2: {numeroFormatado4}")
