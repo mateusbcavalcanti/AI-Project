@@ -1,31 +1,44 @@
 import random
 import math
 
-POPULATION_SIZE = 100
+POPULATION_SIZE = 2
 GENOME_LENGTH = 12
 MUTATION_RATE = 0.1
 CROSSOVER_RATE = 0.7
 GENERATIONS = 200
 GENOME_MEAN = 50
 
-def random_genome(length, target_mean):
-    array = [random.uniform(0, 600.0) for _ in range(length)]
-    current_mean = sum(array) / len(array)
-    while current_mean > target_mean:
-        for i in range(len(array)):
-            if array[i] > 1:
-                array[i] -= 1
-        current_mean = sum(array) / len(array)
-    return array
 
-def init_population(population_size, genome_length):
-    return [random_genome(GENOME_LENGTH, GENOME_MEAN) for _ in range(POPULATION_SIZE)]
+# TALVEZ MUDAR ISSO PARA O GENOMA INICIAL SER OS DADOS DO ANO ANTERIOR (!!???!!)
+def random_genome(length, target_mean):
+    array = [random.uniform(10, 200) for _ in range(length)]
+    current_mean = sum(array) / len(array)
+
+    adjustment_factor = target_mean / current_mean
+    adjusted_array = [gene * adjustment_factor for gene in array]
+
+    return adjusted_array
+
+
+def init_population(POPULATION_SIZE, GENOME_LENGTH):
+    return [
+        random_genome(GENOME_LENGTH, GENOME_MEAN)
+        for _ in range(POPULATION_SIZE)
+    ]
+
 
 def fitness(genome):
     x1 = genome[0]
     x2 = genome[1]
-    Z = -math.exp(0.2 * math.sqrt((x1 - 1) ** 2 + (x2 - 1) ** 2)) + (math.cos(2 * x1) + math.sin(2 * x1))
+    Z = -math.exp(0.2 * math.sqrt((x1 - 1)**2 +
+                                  (x2 - 1)**2)) + (math.cos(2 * x1) +
+                                                   math.sin(2 * x1))
+
+    #resto da funcao que ele mandou no email mas no local errado
+    #offspring1 = [max(min(gene, 5.0), -5.0) for gene in offspring1]
+    #offspring2 = [max(min(gene, 5.0), -5.0) for gene in offspring2]
     return Z
+
 
 def select_parent(population, fitness_values):
     min_fitness = min(fitness_values)
@@ -41,6 +54,7 @@ def select_parent(population, fitness_values):
 
     return random.choice(population)
 
+
 def crossover(parent1, parent2):
     if random.random() < CROSSOVER_RATE:
         crossover_point = random.randint(1, len(parent1) - 1)
@@ -48,19 +62,19 @@ def crossover(parent1, parent2):
         offspring2 = parent2[:crossover_point] + parent1[crossover_point:]
     else:
         offspring1, offspring2 = parent1, parent2
-    offspring1 = [max(min(gene, 5.0), -5.0) for gene in offspring1]
-    offspring2 = [max(min(gene, 5.0), -5.0) for gene in offspring2]
     return offspring1, offspring2
+
 
 def mutate(genome):
     for i in range(len(genome)):
         if random.random() < MUTATION_RATE:
             genome[i] += random.uniform(-0.1, 0.1) * genome[i]
-            genome[i] = max(min(genome[i], 5.0), -5.0)
     return genome
+
 
 def genetic_algorithm():
     population = init_population(POPULATION_SIZE, GENOME_LENGTH)
+    print(f"população inicial: {population}\n\n")
 
     for generation in range(GENERATIONS):
         fitness_values = [fitness(genome) for genome in population]
@@ -87,6 +101,7 @@ def genetic_algorithm():
 
     print(f"Melhor solução: {best_solution}")
     print(f"Melhor fitness: {fitness(best_solution)}")
+
 
 if __name__ == '__main__':
     genetic_algorithm()
