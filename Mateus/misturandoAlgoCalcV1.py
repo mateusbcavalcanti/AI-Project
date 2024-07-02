@@ -148,6 +148,12 @@ def calculoContratos(horasPmes, pld, energiaGerada1, sazonalidadeC1, sazonalidad
         numeroFormatado4 = "{:,.3f}".format(receitaC2)
         print(f"Receita total para o contrato 2: {numeroFormatado4}")
 
+        receitaTotalEmpresa = receitaC1 + receitaC2 
+        numeroFormatado5 = "{:,.3f}".format(receitaTotalEmpresa)
+        print(f"Receita total da empresa eh: {numeroFormatado5}")
+
+
+
 
 
 def genetic_algorithm():
@@ -172,13 +178,15 @@ def genetic_algorithm():
         fitness_values = [fitness(genome) for genome in population]
 
         best_fitness = max(fitness_values)
-        print(f"Geração {generation}: best fitness = {best_fitness}")
+        #print(f"Geração {generation}: best fitness = {best_fitness}")
 
     best_index = fitness_values.index(max(fitness_values))
     best_solution = population[best_index]
 
     print(f"Melhor solução: {best_solution}")
     print(f"Melhor fitness: {fitness(best_solution)}")
+    media = np.mean(best_solution)
+    print(f"Media: {media}")
 
     calculoContratos(horasPmes, pld, energiaGerada1, sazonalidadeC1, sazonalidadeC2, best_solution, precoC1, precoC2, controle, receitaC1, receitaC2)
 
